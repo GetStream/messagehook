@@ -18,3 +18,4 @@ config.yaml
 function.zip
 response.json
 .idea/
+cmd/lambda/bindata.go
