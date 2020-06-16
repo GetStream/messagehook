@@ -6,15 +6,33 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"gopkg.in/yaml.v2"
+	"log"
 )
 
 type Config struct {
-	MessageErrorText string `yaml:"message_error_text"`
-	BlacklistRegexes []string `yaml:"blacklist_regexes"`
-	S3Bucket string `yaml:"s3_bucket"`
-	S3File string `yaml:"s3_file"`
-	S3Region string `yaml:"s3_region"`
+	MessageErrorText        string                   `yaml:"message_error_text"`
+	Patterns                []string                 `yaml:"patterns"`
+	S3Bucket                string                   `yaml:"s3_bucket"`
+	S3File                  string                   `yaml:"s3_file"`
+	S3Region                string                   `yaml:"s3_region"`
 	MessageErrorAttachments []stream_chat.Attachment `yaml:"message_error_attachments"`
+}
+
+func NewFromBytes(bytes []byte) (*Config, error) {
+	config := Config{}
+	err := yaml.Unmarshal(bytes, &config)
+	if err != nil {
+		return nil, err
+	}
+
+	patterns, err := config.LoadPatterns()
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+
+	config.Patterns = patterns
+	return &config, nil
 }
 
 func LoadFromS3(bucket, path, region string) ([]string, error) {
@@ -50,5 +68,5 @@ func (c Config) LoadPatterns() ([]string, error) {
 		return LoadFromS3(c.S3Bucket, c.S3File, c.S3Region)
 	}
 
-	return c.BlacklistRegexes, nil
+	return c.Patterns, nil
 }

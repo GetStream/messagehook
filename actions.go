@@ -6,3 +6,7 @@ func RewriteMessageAsError(message *stream_chat.Message, errorMessage string) {
 	message.Text = errorMessage
 	message.Type = stream_chat.MessageTypeError
 }
+
+func FlagMessage() {}
+
+func ScrubMessage() {}

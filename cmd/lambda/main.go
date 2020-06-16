@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/mailru/easyjson"
-	"gopkg.in/yaml.v2"
 	"log"
 	"messagehook"
 )
@@ -13,24 +12,17 @@ var (
 	config *messagehook.Config
 	blacklist *messagehook.Blacklist
 )
+
 func init() {
 	bytes, err := Asset("config.yaml")
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
 
-	err = yaml.Unmarshal(bytes, &config)
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
+	config, err := messagehook.NewFromBytes(bytes)
 
-	patterns, err := config.LoadPatterns()
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
-
-	blacklist = messagehook.NewBlacklist(patterns)
-	log.Printf("blacklist is ready after loading %d patterns", len(patterns))
+	blacklist = messagehook.NewBlacklist(config.Patterns)
+	log.Printf("blacklist is ready after loading %d patterns", len(config.Patterns))
 }
 
 type Handler struct {}

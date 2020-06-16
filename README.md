@@ -39,7 +39,7 @@ If you decide to use this approach, make sure that the Lambda function role can 
 If S3 is not used, the lambda will load the list of patterns from the YAML file itself
 
 ```yaml
-blacklist_regexes:
+patterns:
   - "[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*" # emails
 ```
 
@@ -65,4 +65,12 @@ You can test the Lambda using aws lambda from awscli.
 
 ```
 aws lambda invoke --function-name message-hook --payload '{ "message": {"text": "example@gmail.com"} }' response.json; cat response.json | jq
+```
+
+### Check locally
+
+Testing Lambdas can be annoying especially if you do not have a working setup for serverless. You can use the check command to do some basic checks.
+
+```
+echo '{"message": {"text": "tbarbugli@gmail.com"}}' | go run cmd/check/main.go
 ```
