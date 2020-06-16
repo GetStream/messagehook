@@ -2,5 +2,9 @@ message_error_text: This message did not follow our guidelines
 #s3_bucket: bucket-name
 #s3_file: full-path-to-file
 #s3_region: region-name
+#stream_base_url:
+stream_api_key: my-api-key
+stream_api_secret: my-api-secret
+check_signature: false
 patterns:
   - "[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*" # emails

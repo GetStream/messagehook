@@ -1,6 +1,6 @@
 package messagehook
 
-import "github.com/GetStream/stream-chat-go/v2"
+import stream_chat "github.com/GetStream/stream-chat-go/v2"
 
 type Payload struct {
 	Message stream_chat.Message `json:"message"`

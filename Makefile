@@ -5,7 +5,7 @@ function.zip: main
 	zip function.zip main
 
 main: $(GO_FILES) $(REMOTE_DEPS) types_easyjson.go cmd/lambda/bindata.go
-	GOOS=linux go build ./cmd/lambda/main.go ./cmd/lambda/bindata.go
+	GOOS=linux go build -ldflags="-s -w" ./cmd/lambda/main.go ./cmd/lambda/bindata.go
 
 types_easyjson.go: types.go
 	go get -u github.com/mailru/easyjson/...

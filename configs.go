@@ -2,12 +2,13 @@ package messagehook
 
 import (
 	"bufio"
-	"github.com/GetStream/stream-chat-go/v2"
+	"log"
+
+	stream_chat "github.com/GetStream/stream-chat-go/v2"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"gopkg.in/yaml.v2"
-	"log"
 )
 
 type Config struct {
@@ -17,6 +18,10 @@ type Config struct {
 	S3File                  string                   `yaml:"s3_file"`
 	S3Region                string                   `yaml:"s3_region"`
 	MessageErrorAttachments []stream_chat.Attachment `yaml:"message_error_attachments"`
+	StreamApiKey            string                   `yaml:"stream_api_key"`
+	StreamApiSecret         string                   `yaml:"stream_api_secret"`
+	StreamBaseURL           string                   `yaml:"stream_base_url"`
+	CheckSignature          bool                     `yaml:"check_signature"`
 }
 
 func NewFromBytes(bytes []byte) (*Config, error) {

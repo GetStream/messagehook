@@ -18,6 +18,16 @@ cp example.config.yaml config.yaml
 
 The configuration file is embedded in the final lambda function. Make sure to run `make` every time you change the configuration file.
 
+### API Credentials & Signature check
+
+Make sure you use the correct API Keys and to enable signature checking.
+
+```yaml
+stream_api_key: api-key
+stream_api_secret: api-secret
+check_signature: true
+```
+
 ### Configuring Patterns
 
 The list of patterns to match messages can be provided in two ways: via the configuration file or by storing it on S3.
@@ -53,18 +63,15 @@ aws lambda create-function --function-name message-hook --runtime go1.x \
   --role arn:aws:iam::1234567:role/lambda-exec
 ```
 
+### Lambda Invoke
+
+The lambda function itself does not work if invoked using the Lambda API and it is meant to be used as the handler for an API gateway route.
+Using something like `aws lambda invoke` will return an error since the payload is not the same as what API Gateway fordwards.
+
 ### Update Lambda Function
 
 ```
 aws lambda update-function-code --function-name message-hook --zip-file fileb://function.zip
-```
-
-### Test Lambda Execution
-
-You can test the Lambda using aws lambda from awscli.
-
-```
-aws lambda invoke --function-name message-hook --payload '{ "message": {"text": "example@gmail.com"} }' response.json; cat response.json | jq
 ```
 
 ### Check locally
@@ -73,4 +80,31 @@ Testing Lambdas can be annoying especially if you do not have a working setup fo
 
 ```
 echo '{"message": {"text": "tbarbugli@gmail.com"}}' | go run cmd/check/main.go
+```
+
+### API Gateway
+
+Once you have the lambda function up and running, make sure to create an API Gateway and to connect the lambda with a route.
+
+1. Go to API Gateway https://console.aws.amazon.com/apigateway
+1. Create a new API
+1. Select the HTTP API type
+1. Choose Lambda from the list of integrations and select the Lambda function created earlier
+1. Make sure to select version 2.0 or the Lambda will not work correctly 
+![image](https://user-images.githubusercontent.com/88735/84822134-824eda00-b01c-11ea-95af-63c9502b4532.png)
+1. Create a new route that sends POST requests to the Lambda function
+![image](https://user-images.githubusercontent.com/88735/84822608-3d777300-b01d-11ea-9a47-871a95c04ca6.png)
+1. Continue with the process until the API is created
+1. The URL of the API gateway will be visible at the end
+1. Make sure to build the full URL (Invoke URL + Route path) ie. `	https://fuhlrrq4h0.execute-api.us-east-1.amazonaws.com/message-hook`
+
+### Configure the hook on your Stream Application
+
+```js
+async function main() {
+    const client = new StreamChat(apiKey, apiSecret);
+    await client.updateAppSettings({
+        before_message_send_hook_url: 'http://127.0.0.1:4323',
+    });
+}
 ```
