@@ -18,6 +18,31 @@ cp example.config.yaml config.yaml
 
 The configuration file is embedded in the final lambda function. Make sure to run `make` every time you change the configuration file.
 
+### Configuring Patterns
+
+The list of patterns to match messages can be provided in two ways: via the configuration file or by storing it on S3.
+
+#### S3 configuration
+
+When the S3 configuration is provided, the lambda function will read the S3 bucket and load all patterns in the file
+
+```yaml
+s3_bucket: my-bucket-name
+s3_file: path/to/file
+s3_region: aws-region-name
+```
+
+If you decide to use this approach, make sure that the Lambda function role can perform GetObject to your S3 bucket.
+
+#### YAML
+
+If S3 is not used, the lambda will load the list of patterns from the YAML file itself
+
+```yaml
+blacklist_regexes:
+  - "[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*" # emails
+```
+
 ### Create Lambda Function
 
 Let's asssume you want to call this function `message-hook`.

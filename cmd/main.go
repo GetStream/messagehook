@@ -13,7 +13,6 @@ var (
 	config *messagehook.Config
 	blacklist *messagehook.Blacklist
 )
-
 func init() {
 	bytes, err := Asset("config.yaml")
 	if err != nil {
@@ -25,8 +24,13 @@ func init() {
 		log.Fatalf("error: %v", err)
 	}
 
-	blacklist = messagehook.NewBlacklist(config.BlacklistRegexes)
-	log.Printf("blacklist is ready after loading %d patterns", len(config.BlacklistRegexes))
+	patterns, err := config.LoadPatterns()
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+
+	blacklist = messagehook.NewBlacklist(patterns)
+	log.Printf("blacklist is ready after loading %d patterns", len(patterns))
 }
 
 type Handler struct {}
