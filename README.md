@@ -1,3 +1,12 @@
+### Message Hook Handler
+
+This is an example Lambda handler that you can use as a [before message send](https://getstream.io/chat/docs/) hook endpoint. The handler will receive a message
+payload and checks if the message text matches any regex. If there is a match the message will be rewritten as an error message.
+
+This handler also checks that the message includes a correct signature, the signature can only be created using the API secret. 
+
+You can configure several things to match your use-case but it is very trivial to perform different logic by making minimal changes to the code (see cmd/lambda/main.go)
+
 ### Install
 
 Make sure you have the latest version of Go installed, once you have that you only need to run `make` and you will get a 
