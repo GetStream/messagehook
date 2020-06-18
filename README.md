@@ -88,7 +88,7 @@ aws lambda update-function-code --function-name message-hook --zip-file fileb://
 Testing Lambdas can be annoying especially if you do not have a working setup for serverless. You can use the check command to do some basic checks.
 
 ```
-echo '{"message": {"text": "tbarbugli@gmail.com"}}' | go run cmd/check/main.go
+echo '{"message": {"text": "name@example.com"}}' | go run cmd/check/main.go
 ```
 
 ### API Gateway
