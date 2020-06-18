@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/mailru/easyjson"
 	"io/ioutil"
 	"log"
 	"messagehook"
 	"os"
+
+	"github.com/mailru/easyjson"
 )
 
 func main() {
@@ -23,10 +24,12 @@ func main() {
 	}
 
 	config, err := messagehook.NewFromBytes(bytes)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
 
 	blacklist := messagehook.NewBlacklist(config.Patterns)
 	log.Printf("blacklist is ready after loading %d patterns", len(config.Patterns))
-
 
 	stdinBytes, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
