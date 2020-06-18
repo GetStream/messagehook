@@ -10,8 +10,8 @@ main: $(GO_FILES) $(REMOTE_DEPS) types_easyjson.go cmd/lambda/bindata.go
 
 types_easyjson.go: types.go
 	go get -u github.com/mailru/easyjson/...
-	easyjson -all types.go
+	$(GOBIN)/easyjson -all types.go
 
 cmd/lambda/bindata.go: config.yaml
 	go get -u github.com/go-bindata/go-bindata/...
-	go-bindata -o cmd/lambda/bindata.go config.yaml
+	$(GOBIN)/go-bindata -o cmd/lambda/bindata.go config.yaml
