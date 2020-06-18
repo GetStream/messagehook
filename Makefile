@@ -1,3 +1,4 @@
+GOBIN ?= $(shell go env GOPATH)/bin
 REMOTE_DEPS = go.mod go.sum
 GO_FILES = $(shell find . -name "*.go" | grep -v "pb.go$$" | grep -v /vendor/ | xargs)
 
