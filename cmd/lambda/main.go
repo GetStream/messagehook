@@ -65,8 +65,6 @@ func parseGatewayPayload(data []byte, check testSignature) (*messagehook.Payload
 	var body []byte
 	event := apiGatewayEvent{}
 
-	log.Printf("request body %s", string(data))
-
 	err := json.Unmarshal(data, &event)
 	if err != nil {
 		return nil, err
@@ -80,9 +78,6 @@ func parseGatewayPayload(data []byte, check testSignature) (*messagehook.Payload
 			return nil, err
 		}
 	}
-
-	log.Printf("%q", string(body))
-	log.Printf("%q", event.Headers[apiSecret])
 
 	payload := messagehook.Payload{}
 
