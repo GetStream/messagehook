@@ -8,8 +8,14 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"gopkg.in/yaml.v2"
+	"github.com/goccy/go-yaml"
 )
+
+type Credential struct {
+	Key     string `yaml:"key"`
+	Secret  string `yaml:"secret"`
+	Default bool   `yaml:"default"`
+}
 
 type Config struct {
 	MessageErrorText        string                   `yaml:"message_error_text"`
@@ -18,10 +24,10 @@ type Config struct {
 	S3File                  string                   `yaml:"s3_file"`
 	S3Region                string                   `yaml:"s3_region"`
 	MessageErrorAttachments []stream_chat.Attachment `yaml:"message_error_attachments"`
-	StreamApiKey            string                   `yaml:"stream_api_key"`
-	StreamApiSecret         string                   `yaml:"stream_api_secret"`
+	StreamCredentials       []Credential             `yaml:"stream_credentials"`
 	StreamBaseURL           string                   `yaml:"stream_base_url"`
 	CheckSignature          bool                     `yaml:"check_signature"`
+	IncludeOriginalText     bool                     `yaml:"include_original_text"`
 }
 
 func NewFromBytes(bytes []byte) (*Config, error) {

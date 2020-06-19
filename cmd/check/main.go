@@ -48,7 +48,7 @@ func main() {
 	}
 
 	if blacklist.Match(response.Message.Text) {
-		messagehook.RewriteMessageAsError(&response.Message, config.MessageErrorText)
+		messagehook.RewriteMessageAsError(&response.Message, config.MessageErrorText, config.IncludeOriginalText, config.MessageErrorAttachments)
 	}
 
 	out, err := easyjson.Marshal(response)

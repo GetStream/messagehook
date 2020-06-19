@@ -1,10 +1,19 @@
 message_error_text: This message did not follow our guidelines
+# include_original_text: when true the original text will be added to the message in a special field called "original_text"
+include_original_text: true
+message_error_attachments:
+  - title: This message was blocked by a webhook
+    og_scrape_url: https://getstream.io/chat/docs/presend_message_hook/
+    text: This message was blocked by a webhook
 #s3_bucket: bucket-name
 #s3_file: full-path-to-file
 #s3_region: region-name
 #stream_base_url:
-stream_api_key: my-api-key
-stream_api_secret: my-api-secret
+stream_credentials:
+  - key: key1
+    secret: secret1
+  - key: key2
+    secret: secret2
 check_signature: false
 patterns:
   - "[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*" # emails

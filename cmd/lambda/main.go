@@ -14,16 +14,19 @@ import (
 )
 
 var (
-	config     *messagehook.Config
-	blacklist  *messagehook.Blacklist
-	chatClient *stream_chat.Client
+	config      *messagehook.Config
+	blacklist   *messagehook.Blacklist
+	chatClients map[string]*stream_chat.Client
 )
 
 const (
-	apiSecret = "x-signature"
+	apiSecretHeadeName = "x-signature"
+	apiKeyHeaderName   = "x-api-key"
 )
 
 func init() {
+	chatClients = map[string]*stream_chat.Client{}
+
 	bytes, err := Asset("config.yaml")
 	if err != nil {
 		log.Fatalf("error: %v", err)
@@ -34,15 +37,16 @@ func init() {
 		log.Fatalf("error: %v", err)
 	}
 
-	log.Printf("api secret: %q", config.StreamApiSecret)
-
-	chatClient, err = stream_chat.NewClient(config.StreamApiKey, []byte(config.StreamApiSecret))
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
-
-	if config.StreamBaseURL != "" {
-		chatClient.BaseURL = config.StreamBaseURL
+	for _, credentials := range config.StreamCredentials {
+		log.Printf("loading credentials for api key: %q", credentials.Key)
+		chatClient, err := stream_chat.NewClient(credentials.Key, []byte(credentials.Secret))
+		if err != nil {
+			log.Fatalf("error: %v", err)
+		}
+		if config.StreamBaseURL != "" {
+			chatClient.BaseURL = config.StreamBaseURL
+		}
+		chatClients[credentials.Key] = chatClient
 	}
 
 	blacklist = messagehook.NewBlacklist(config.Patterns)
@@ -57,11 +61,7 @@ type apiGatewayEvent struct {
 	Body    string            `json:"body"`
 }
 
-type testSignature func(body, signature []byte) (valid bool)
-
-func noopCheck(_, _ []byte) bool { return true }
-
-func parseGatewayPayload(data []byte, check testSignature) (*messagehook.Payload, error) {
+func parseGatewayPayload(data []byte) (*messagehook.Payload, error) {
 	var body []byte
 	event := apiGatewayEvent{}
 
@@ -86,20 +86,25 @@ func parseGatewayPayload(data []byte, check testSignature) (*messagehook.Payload
 		return nil, err
 	}
 
-	if !check(body, []byte(event.Headers[apiSecret])) {
-		return nil, fmt.Errorf("payload is not signed with the same secret")
+	if config.CheckSignature {
+		key := event.Headers[apiKeyHeaderName]
+		secret := event.Headers[apiSecretHeadeName]
+
+		client, found := chatClients[key]
+		if !found {
+			return nil, fmt.Errorf("handler is not configured for api key %q", key)
+		}
+
+		if !client.VerifyWebhook(body, []byte(secret)) {
+			return nil, fmt.Errorf("payload is not signed with the correct secret for api key %q", secret)
+		}
 	}
 
 	return &payload, nil
 }
 
 func (h *Handler) Invoke(_ context.Context, payload []byte) ([]byte, error) {
-	check := noopCheck
-	if config.CheckSignature {
-		check = chatClient.VerifyWebhook
-	}
-
-	request, err := parseGatewayPayload(payload, check)
+	request, err := parseGatewayPayload(payload)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +114,8 @@ func (h *Handler) Invoke(_ context.Context, payload []byte) ([]byte, error) {
 	}
 
 	if blacklist.Match(response.Message.Text) {
-		messagehook.RewriteMessageAsError(&response.Message, config.MessageErrorText)
+		log.Printf("message %q matched the blacklist and will be rewritten", response.Message.Text)
+		messagehook.RewriteMessageAsError(&response.Message, config.MessageErrorText, config.IncludeOriginalText, config.MessageErrorAttachments)
 	}
 
 	return easyjson.Marshal(response)
