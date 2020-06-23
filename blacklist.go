@@ -14,7 +14,7 @@ func NewBlacklist(patterns []string) *Blacklist {
 	for _, entry := range patterns {
 		r, err := regexp.Compile(entry)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println(fmt.Sprintf("%s (%s)", err.Error(), entry))
 			continue
 		}
 		b.regexes = append(b.regexes, r)
