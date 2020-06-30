@@ -13,6 +13,7 @@ func RewriteMessageAsError(message *stream_chat.Message, errorMessage string, in
 			message.ExtraData = map[string]interface{}{}
 		}
 		message.ExtraData[originalTextField] = message.Text
+		message.ExtraData["silent"] = true
 	}
 	message.ExtraData[isRewritten] = true
 	message.Text = errorMessage
